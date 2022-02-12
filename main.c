@@ -28,7 +28,6 @@ typedef enum
 //static  char cSend[25];           // RS232 from PIC to Device
 
 static  char command[10];
-
 static int16_t commandParameter[3];
 
 
