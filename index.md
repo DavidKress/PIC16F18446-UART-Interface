@@ -1,4 +1,4 @@
-## Welcome to GitHub Pages
+## PIC16F18446 uC Terminal Interfae
 
 You can use the [editor on GitHub](https://github.com/DavidKress/PIC16F18446-uC-Terminal-Interface/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
 
