@@ -1,8 +1,8 @@
 /*H**********************************************************************
-* FILENAME :        init.h                    
+* FILENAME :        uarth.h                    
 *
 * DESCRIPTION :
-*       Provides public functions of init.c
+*       Provides global functions of uart.c
 *       
 * WRITTEN FOR HARDWARE:
 *       Microchip PCB Curiosity LPC with PIC16F18446
@@ -21,11 +21,21 @@
 *
 *H*/
 
-#ifndef INIT_H
-#define	INIT_H
+
+
+#ifndef RINGBUFFER_H
+#define	RINGBUFFER_H
+
+/*--- Project headers-------------------------------------------------------- */
+#include "global.h"
 
 /*--- Function declarations-------------------------------------------------- */
-void InitPIC16F18446(void);
+void BufferInit(volatile ringBuffer_t*);
+void BufferPush(char, volatile ringBuffer_t*);
+void BufferPull(char*, volatile ringBuffer_t*);
 
-#endif	/* INIT_H */
+void TransferDataInRingBuffer(volatile ringBuffer_t*, messageBuffer_t*);
+void TransferDataInMessageBuffer(volatile ringBuffer_t*, messageBuffer_t*);
+
+#endif	/* RINGBUFFER_H */
 
