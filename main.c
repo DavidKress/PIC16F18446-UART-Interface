@@ -90,9 +90,7 @@ void main(void) {
             case init:
                 InitPIC16F18446();
         
-                strcpy(UARTOutputMessageBuffer.bufferData, "Program Starrt\r\n");               
-                UARTOutputMessageBuffer.pullPointer=0;
-                UARTOutputMessageBuffer.readyToReceiveNextMessage = false;        
+                strcpy(UARTOutputMessageBuffer.bufferData, "Program Start\r\n");                   
                 TransferDataInRingBuffer(&TXBuffer, &UARTOutputMessageBuffer);               
                 
                 nextState = idle;

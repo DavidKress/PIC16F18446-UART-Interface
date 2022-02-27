@@ -85,8 +85,8 @@ void ValidateMessage(uartCommandParameters_t* newMessage)
        strcat(strcpy(answerString, uartCommandLibrary[newMessage->commandLibraryIndex].command), " A\r\n");
         
     strcpy(UARTOutputMessageBuffer.bufferData, answerString);
-    UARTOutputMessageBuffer.pullPointer=0;
-    UARTOutputMessageBuffer.readyToReceiveNextMessage = false;        
+    //UARTOutputMessageBuffer.pullPointer=0;
+    //UARTOutputMessageBuffer.readyToReceiveNextMessage = false;        
     TransferDataInRingBuffer(&TXBuffer, &UARTOutputMessageBuffer);  
 }
 

@@ -104,6 +104,8 @@ void TransferDataInMessageBuffer(volatile ringBuffer_t *tempRingBuffer, messageB
 
 void TransferDataInRingBuffer(volatile ringBuffer_t *tempRingBuffer, messageBuffer_t* messageBuffer)
 {
+    messageBuffer->pullPointer=0;
+    messageBuffer->readyToReceiveNextMessage = false;  
     if(!tempRingBuffer->bufferFull)
     {
         while(!(messageBuffer->bufferData[messageBuffer->pullPointer-1] == 0x0A && messageBuffer->bufferData[messageBuffer->pullPointer-2] == 0x0D))
