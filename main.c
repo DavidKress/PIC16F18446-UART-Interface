@@ -15,8 +15,12 @@
 * 
 * PIN TABLE:
 *      PIN          Function          
-*      PB5:         UART RC
-*      PB7:         UART TX
+*      RB5:         UART RC
+*      RB7:         UART TX
+*      RA1:         LED
+*      RA2:         LED 
+*      RA5:         LED
+*      RC5:         LED 
 * 
 * NOTES :
 *       This file is part of the project 'uC Terminal Interface'
@@ -65,34 +69,40 @@ static volatile unsigned long counter = 0;
 
 /*--- Main Routine -----------------------------------------------------------*/
 void main(void) {
-    
-    statemachine_t stateMachine = init;
-    statemachine_t nextState = init;
- 
-    uartCommandParameters_t receivedCommand;
-    
-    messageBuffer_t UARTInputMessageBuffer;
-    
+
+    /*--- Declaration of local variables -------------------------------------*/    
+    uartCommandParameters_t     receivedCommand; 
+    messageBuffer_t             UARTInputMessageBuffer;
+
+    /*--- Definition of local variables --------------------------------------*/    
+    statemachine_t              stateMachine   = init;
+    statemachine_t              nextState      = init;
+
+
+    /*--- Endless main Loop --------------------------------------------------*/
     while(1)
     {
 
+        /*--- Control LED blinks to indicate program running -----------------*/
         counter++;
         if (counter == 0x8000)
         {
-            LATA ^= 0x04;
-            LATA &= ~0x02;
+            LATA ^= 0x04;   // Control LED
+            LATA &= ~0x02;  // Clear UART RC interrupt LED
             counter = 0;
         }
-        
+
+        /*--- State machine --------------------------------------------------*/        
         stateMachine = nextState;
         switch(stateMachine)
         {
+            /*--- Initial state only active after reset-----------------------*/
             case init:
                 InitPIC16F18446();
         
                 strcpy(UARTOutputMessageBuffer.bufferData, "Program Start\r\n");                   
                 TransferDataInRingBuffer(&TXBuffer, &UARTOutputMessageBuffer);               
-                
+                 
                 nextState = idle;
                 break;
         
@@ -108,6 +118,7 @@ void main(void) {
                     receivedCommand = ParseMessage(UARTInputMessageBuffer.bufferData);
                     UARTInputMessageBuffer.containsCompleteNotProcessedMessage = false;
                     ValidateMessage(&receivedCommand);
+                    (*uartCommandLibrary[receivedCommand.commandLibraryIndex].commandFunction)(receivedCommand.numberOfParameters, receivedCommand.parameters);   
                 }
                 break;
                 
@@ -136,7 +147,7 @@ void __interrupt() INTERRUPT_InterruptManager (void)
     
     if(RC1IF && RC1IE)
     {
-        LATA1 = 1;
+        LATAbits.LATA1 = 1;
         BufferPush(RC1REG, &RXBuffer);
         counter = 0;
     }

@@ -29,8 +29,8 @@
 //------------------------------------------------------------------------------
 
 // CONFIG1L
-#pragma config FEXTOSC  = 7     // EC above 8MHz; PFM set to high power
-#pragma config RSTOSC  = 7      // EXTOSC operating per FEXTOSC bits
+#pragma config FEXTOSC  = 4     // External Oscillator mode selection bits (Oscillator not enabled)
+#pragma config RSTOSC  = 6      // Power-up default value for COSC bits (HFINTOSC (1MHz))
 
 // CONFIG1H
 #pragma config CLKOUTEN = 1     // CLKOUT function is disabled
