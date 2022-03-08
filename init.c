@@ -72,19 +72,27 @@ void InitGlobalVariables()
 void InitOscillator()
 {
     OSCFRQbits.HFFRQ = 0x05;      // Set HF Int OSC to 16MHz    
-    OSCCON2bits.CDIV= 0;
-    OSCCON2bits.COSC = 0x06;      // Enable HF Int OSC, set clock divider to 1  
+    OSCCON1bits.NOSC = 0x06;      // Enable HF Int OSC, set clock divider to 1     
+    OSCCON1bits.NDIV= 0;
+ 
 }
 
 void InitPorts()
 {
+    ANSELA = 0x00;   
     LATA = 0x00;
-    
-    LATB = 0x00;
-    
-    LATC = 0x00;
-    
     TRISA = 0x00;
+
+ 
+    ANSELB = 0x00;
+    LATB = 0x00;
+    TRISB = 0x00;    
+
+    ANSELC = 0x00;
+    LATC = 0x00;    
+    TRISC = 0x00;
+    
+
     
     TRISB = 0x00;
     TRISBbits.TRISB5 = 1;       // - RB5: UART input 

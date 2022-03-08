@@ -37,42 +37,43 @@
 #include "global.h"
 #include "parser.h"
 #include "uart.h"
+#include "servicefunctions.h"
 
 /*--- Constant values ------------------------------------------------------- */
-#define COMMANDLIBRARYSIZE 3
-#define MAXCOMMANDSIZE 7
+
+
 
 
 /*--- Type definitions ------------------------------------------------------- */
 
-/*--- uartCommandDefinition_t ---
-* Defines the name of a command and it's number of attributes
-* which it needs to be a valid command. 
-* ToDo: Define the target of a function pointer that defines which 
-* function shall be executed when the command is rreceived*/
-typedef struct uartCommandDefinition_s
-{                   
-   char command[MAXCOMMANDSIZE];  // Command name
-   uint8_t numbOfParameters;  // Number of parameters to make the command valid
-} uartCommandDefinition_t;
+
 
 
 /*--- Definition of global variables, accessed only by this file ------------*/
-uartCommandDefinition_t uartCommandLibrary[COMMANDLIBRARYSIZE]=
+uartCommandDefinition_t uartCommandLibrary[]=
 {
     {
         "ES",
-        0
+        0,
+        &ErrorSyntax
     },
     {
         "Jas",
-        2
+        2,
+        &PortActionJas
     },
     
-        {
+    {
         "Ama",
-        2
-    },    
+        2,
+        &PortActionAma
+    },
+    
+    {
+        "ZFC100",
+        2,
+        &ZFC100
+    },      
 };
 
 /* --- Functions -------------------------------------------------------------*/
@@ -87,7 +88,9 @@ void ValidateMessage(uartCommandParameters_t* newMessage)
     strcpy(UARTOutputMessageBuffer.bufferData, answerString);
     //UARTOutputMessageBuffer.pullPointer=0;
     //UARTOutputMessageBuffer.readyToReceiveNextMessage = false;        
-    TransferDataInRingBuffer(&TXBuffer, &UARTOutputMessageBuffer);  
+    TransferDataInRingBuffer(&TXBuffer, &UARTOutputMessageBuffer);
+    //PortActionJas();
+    
 }
 
 uartCommandParameters_t ParseMessage(char* message)

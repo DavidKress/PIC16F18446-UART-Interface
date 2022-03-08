@@ -24,9 +24,26 @@
 #ifndef PARSER_H
 #define	PARSER_H
 
+#define MAXCOMMANDSIZE 7
+#define COMMANDLIBRARYSIZE 4
+
+/*--- uartCommandDefinition_t ---
+* Defines the name of a command and it's number of attributes
+* which it needs to be a valid command. 
+* ToDo: Define the target of a function pointer that defines which 
+* function shall be executed when the command is rreceived*/
+typedef struct uartCommandDefinition_s
+{                   
+   char command[MAXCOMMANDSIZE];  // Command name
+   uint8_t numbOfParameters;  // Number of parameters to make the command valid
+   int (*commandFunction)(uint8_t , uint16_t*);
+} uartCommandDefinition_t;
+
+
 /*--- Function declarations-------------------------------------------------- */
 void ValidateMessage(uartCommandParameters_t*);
 uartCommandParameters_t ParseMessage(char*);
+uartCommandDefinition_t uartCommandLibrary[COMMANDLIBRARYSIZE];
 
 #endif	/* PARSER_H */
 
