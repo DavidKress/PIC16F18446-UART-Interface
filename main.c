@@ -51,11 +51,26 @@
 /*--- Type definitions ------------------------------------------------------ */
 typedef enum
 {
-    init, 
-    idle,
-    receiveMessage
-    
-}statemachine_t;
+    init_state, 
+    idle_state,
+    receiveMessage_state    
+}systemState_t;
+
+typedef enum
+{   
+    no_event,
+    systemStart_event,
+    uartCharReceived_event, 
+    uartMessageComplete_event,  
+}systemEvent_t;
+
+
+/*--- Declaration of functions, used only in this file -----------------------*/
+systemState_t HandlerSystemStart(void);
+systemState_t HandlerUartCharReceived(void);
+systemState_t HandlerUartMessageComplete(void);
+systemEvent_t EventDetector(void);
+
 
 
 /*--- Definition of global variables, also accessed by other files -----------*/
@@ -66,17 +81,21 @@ volatile ringBuffer_t TXBuffer;
 /*--- Definition of varialbes only accessed by this file and ISR -------------*/
 static volatile unsigned long counter = 0;
 
+/*--- Definition of varialbes only accessed by this file ---------------------*/
+messageBuffer_t             UARTInputMessageBuffer;
+
 
 /*--- Main Routine -----------------------------------------------------------*/
 void main(void) {
 
     /*--- Declaration of local variables -------------------------------------*/    
-    uartCommandParameters_t     receivedCommand; 
-    messageBuffer_t             UARTInputMessageBuffer;
+
+
 
     /*--- Definition of local variables --------------------------------------*/    
-    statemachine_t              stateMachine   = init;
-    statemachine_t              nextState      = init;
+    systemState_t              currentState   = idle_state;
+    systemState_t              nextState      = idle_state;
+    systemEvent_t              newEvent       = systemStart_event;
 
 
     /*--- Endless main Loop --------------------------------------------------*/
@@ -93,42 +112,39 @@ void main(void) {
         }
 
         /*--- State machine --------------------------------------------------*/        
-        stateMachine = nextState;
-        switch(stateMachine)
+        currentState = nextState;
+        switch(currentState)
         {
-            /*--- Initial state only active after reset-----------------------*/
-            case init:
-                InitPIC16F18446();
-        
-                strcpy(UARTOutputMessageBuffer.bufferData, "Program Start\r\n");                   
-                TransferDataInRingBuffer(&TXBuffer, &UARTOutputMessageBuffer);               
-                 
-                nextState = idle;
-                break;
-        
-            case idle:
+      
+            case idle_state:
                 
-                if(!RXBuffer.bufferEmpty)
+                if(newEvent == systemStart_event)
                 {
-                    TransferDataInMessageBuffer(&RXBuffer, &UARTInputMessageBuffer);
-                }
- 
-                if(UARTInputMessageBuffer.containsCompleteNotProcessedMessage)
+                    nextState = HandlerSystemStart();
+                    newEvent = no_event;
+                }   
+                
+                if(newEvent == uartCharReceived_event)
                 {
-                    receivedCommand = ParseMessage(UARTInputMessageBuffer.bufferData);
-                    UARTInputMessageBuffer.containsCompleteNotProcessedMessage = false;
-                    ValidateMessage(&receivedCommand);
-                    (*uartCommandLibrary[receivedCommand.commandLibraryIndex].commandFunction)(receivedCommand.numberOfParameters, receivedCommand.parameters);   
-                }
+                    nextState = HandlerUartCharReceived();
+                    newEvent = no_event;
+                }   
+                
+                if(newEvent == uartMessageComplete_event)
+                {
+                    nextState = HandlerUartMessageComplete();
+                    newEvent = no_event;
+                }    
+                
                 break;
                 
                 
                 
             default:
-                nextState = idle;
+                nextState = idle_state;
                 break;
         }
- 
+        newEvent = EventDetector();
     }       
     return;
 }
@@ -153,4 +169,41 @@ void __interrupt() INTERRUPT_InterruptManager (void)
     }
     return;
     
+}
+
+systemEvent_t EventDetector(void)
+{
+    if(UARTInputMessageBuffer.containsCompleteNotProcessedMessage)
+        return uartMessageComplete_event;
+    
+    if(!RXBuffer.bufferEmpty)
+        return uartCharReceived_event;
+ 
+    return no_event;
+    
+}
+
+
+systemState_t HandlerSystemStart(void)
+{
+    InitPIC16F18446();
+    strcpy(UARTOutputMessageBuffer.bufferData, "Program Start\r\n");                   
+    TransferDataInRingBuffer(&TXBuffer, &UARTOutputMessageBuffer);               
+    return idle_state;
+}
+
+systemState_t HandlerUartCharReceived(void)
+{
+    TransferDataInMessageBuffer(&RXBuffer, &UARTInputMessageBuffer);              
+    return idle_state;
+}
+
+systemState_t HandlerUartMessageComplete(void)
+{
+    uartCommandParameters_t     receivedCommand; 
+    receivedCommand = ParseMessage(UARTInputMessageBuffer.bufferData);
+    UARTInputMessageBuffer.containsCompleteNotProcessedMessage = false;
+    ValidateMessage(&receivedCommand);
+    (*uartCommandLibrary[receivedCommand.commandLibraryIndex].commandFunction)(receivedCommand.numberOfParameters, receivedCommand.parameters);   
+    return idle_state;
 }
