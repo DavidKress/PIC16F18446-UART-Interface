@@ -103,9 +103,22 @@ void InitPorts()
 
 void InitPPS()
 {
-    RX1PPSbits.PORT = 0x01;   // PORT B
-    RX1PPSbits.PIN = 0x05;    // RX5 (X=B))
-    RB7PPS = 0x0F;            // Connect RB7 to UART TX
+    //UART TX: RB7, RC: RB5
+    RX1PPSbits.PORT = 0x01; //RC
+    RX1PPSbits.PIN = 0x05;  //RC   
+    RB7PPS = 0x0F;          //TX
+    
+    //I2C SDA1: RB4, SCL1: RB6
+    SSP1CLKPPSbits.PORT = 0x01; //SCL Input
+    SSP1CLKPPSbits.PIN = 0x06;  //SCL Input
+    SSP1DATPPSbits.PORT = 0x01; //SDA Input
+    SSP1DATPPSbits.PIN = 0x04;  //SDA Input    
+
+    RB6PPS = 0x13;          //SCL Output 
+    RB4PPS = 0x14;          //SDA Output 
+
+            
+    
 }
 
 void InitUART()
